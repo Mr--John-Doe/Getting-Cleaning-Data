@@ -54,7 +54,7 @@ The code performs the following main steps:
 
 ###Assumptions
 This script assumes:
-*
+
 + a connection to the internet exists (in order to download packages if needed)  
 + the Samsung data is located in the working directory (or one of the sub-directories)  
 + only 1 single copy of this data exists  
