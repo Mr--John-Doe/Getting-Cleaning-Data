@@ -1,5 +1,5 @@
 #Getting and Cleaning Data - Coursera
-##Code Book for *run_analysis.R*
+##Read Me
 **************************************************
 ###Objective
 This file describes variables, data, and any transformations or work performed by the R script *run_analysis.R*. This script was developed to fulfil the following requirements:
