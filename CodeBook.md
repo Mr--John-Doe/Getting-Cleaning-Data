@@ -1,20 +1,24 @@
 #Getting and Cleaning Data - Coursera
 ##Code Book for *run_analysis.R*
 **************************************************
-###Objective
-This file describes variables, data, and any transformations or work performed by the R script *run_analysis.R*. This script was developed to fulfil the following requirements:
 
-Using the file present here (https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip) and described here (http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones), perform the following actions:
+###Assumptions
+This script assumes:
 
-  1. Merge the training and the test sets to create one data set.
++ a connection to the internet exists (in order to download packages if needed)  
++ the Samsung data is located in the working directory (or one of the sub-directories)  
++ only 1 single copy of this data exists  
 
-  2. Extract only the measurements on the mean and standard deviation for each measurement. 
+###File Dependencies
++ features.txt   ->>> *column names*  
++ activity_labels.txt   ->>> *activity descriptions*  
++ x_train.txt, y_train.txt, x_test.txt, y_test ->>> *data*  
 
-  3. Use descriptive activity names to name the activities in the data set
 
-  4. Appropriately label the data set with descriptive variable names. 
+###Package Dependencies
+- *base packages*
+- *plyr*
 
-  5. Create a second, independent tidy data set with the average of each variable for each activity and each subject. 
 
 ###Code Summary
 The code performs the following main steps:
@@ -40,24 +44,28 @@ The code performs the following main steps:
   
 5. __Output the dataset[4.] into file *average_by_subject_activity.txt*__  
 
-  
-###Package Dependencies
-- *base packages*
-- *plyr*
+###Data Description
+####original.data
+This data.frame contains both the _test_ and the _train_ datasets, unioned, and with the subject each row matches to.
 
+####tidy.data
+This data.frame is derived from original.data, and contains the activity description, source (train/test), subject, and all the AVG/STD variables.
 
-###File Dependencies
-+ features.txt   ->>> *column names*  
-+ activity_labels.txt   ->>> *activity descriptions*  
-+ x_train.txt, y_train.txt, x_test.txt, y_test ->>> *data*  
+####output.agg.data
+This data.frame is derived from tidy.data, and contains the average for each variable grouped by subject and activity.
 
+###Data Transformations
+####original.data -> tidy.data  
+1. select only the columns that contain one of the strings ('mean(','avg('), plus the columns source, subject, activity  
 
-###Assumptions
-This script assumes:
+2. cast the "activity" column as _factor_  
 
-+ a connection to the internet exists (in order to download packages if needed)  
-+ the Samsung data is located in the working directory (or one of the sub-directories)  
-+ only 1 single copy of this data exists  
+3. convert "activity" column -> tolower()
+
+4. replace column names: mean->Mean , std->Std , delete () and -
+
+####tidy.data -> output.agg.data  
+1. resulting dataset for *average(all_variables) group by (activity,subject)*  
 
 
 **************************************************

@@ -57,7 +57,7 @@ file.activity_labels <- list.files(pattern="activity_labels.txt"
                                    , full.names = TRUE, ignore.case = TRUE
                                    , recursive = TRUE)
 dim_activity  <- read.table(file.activity_labels, sep="", stringsAsFactors=FALSE)
-colnames(dim_activity) <- c("id","activityDesc")
+colnames(dim_activity) <- c("id","activity")
 
 ### Get a list of files to load
 file.datasets  <-
@@ -90,14 +90,14 @@ colnames(file.datasets) <- c("data", "activity_list", "subject")
 
 ## Bind data into a single dataset
 ### Initialize the data.frame
-dset.data <- data.frame()
+original.data <- data.frame()
 
 ### For each file pair
 for(rowname in rownames(file.datasets)) 
 {
   ### Read and bind data
-  dset.data <- rbind(
-    dset.data,
+  original.data <- rbind(
+    original.data,
     cbind(
       c(rowname)
       , read.table(file.datasets[rowname,"activity_list"]
@@ -119,7 +119,7 @@ for(rowname in rownames(file.datasets))
 
 ### Assign colnames
 suppressWarnings(
-  colnames(dset.data) <- c("source","activity","subject",dset.colnames[,2])
+  colnames(original.data) <- c("source","activity","subject",dset.colnames[,2])
 )
 
 ### Clean up environment
@@ -130,19 +130,20 @@ rm(dset.colnames
    ,file.datasets
    ,rowname
    ,folders
+   ,dataRootFolder
 )
 
 
 # Subset and tidying data
 message("subsetting and tidying data")
 ### Identify all mean/std columns
-dset.subsetColumns <- sort(
+tidy.dataColumns <- sort(
   c("source","activity", "subject"
-    , colnames(dset.data)[grep(x=colnames(dset.data)
+    , colnames(original.data)[grep(x=colnames(original.data)
                         ,pattern = "*mean(\\()"
                         ,ignore.case = TRUE)
                    ]
-    , colnames(dset.data)[grep(x=colnames(dset.data)
+    , colnames(original.data)[grep(x=colnames(original.data)
                                ,pattern = "*std(\\()"
                                ,ignore.case = TRUE)
                           ]
@@ -151,39 +152,40 @@ dset.subsetColumns <- sort(
 
 ### Extract only the source, activity, and mean/std columns as identified on 
 ###  previous step
-dset.subset <- dset.data[ , names(dset.data) %in% dset.subsetColumns]
+tidy.data <- original.data[ , names(original.data) %in% tidy.dataColumns]
 
 ### Merge activity description into dataset, removing the ID
-dset.subset <- merge(dim_activity, dset.subset
+tidy.data <- merge(dim_activity, tidy.data
                           , by.x="id", by.y="activity")
 
   
 ### Release original dataset and dim_activity
-rm(dset.data,dim_activity)
+rm(dim_activity
+   ,tidy.dataColumns)
 
 #Tidy up the Data Set
 ### Remove the activity ID
-dset.subset <- dset.subset[-1]
+tidy.data <- tidy.data[-1]
 
 ### set activity as factor
-dset.subset$activityDesc = as.factor(dset.subset$activityDesc)
+tidy.data$activity = as.factor(tidy.data$activity)
 
 ### Tidy the colnames
-names(dset.subset) <- gsub("mean", "Mean", names(dset.subset)) # capitalize M
-names(dset.subset) <- gsub("std", "Std", names(dset.subset)) # capitalize S
-names(dset.subset) <- gsub("\\(\\)|-", "", names(dset.subset)) # remove "()" and "-"
+names(tidy.data) <- gsub("mean", "Mean", names(tidy.data)) # capitalize M
+names(tidy.data) <- gsub("std", "Std", names(tidy.data)) # capitalize S
+names(tidy.data) <- gsub("\\(\\)|-", "", names(tidy.data)) # remove "()" and "-"
 
 ### Tidy the Activity label
-dset.subset$activityDesc = tolower(dset.subset$activityDesc)
+tidy.data$activity = tolower(tidy.data$activity)
 
 # Calculate average(variables) group by (activity,subject)
-tidy.subset <- aggregate(dset.subset[, -(1:3)],
-                                by=list(dset.subset$subject
-                                      , dset.subset$activityDesc),
+output.agg.data <- aggregate(tidy.data[, -(1:3)],
+                                by=list(tidy.data$subject
+                                      , tidy.data$activity),
                                 FUN=mean, na.RM = TRUE)
 
 # Assign column names
-colnames(tidy.subset)[1:2] <- c("subject","activity")
+colnames(output.agg.data)[1:2] <- c("subject","activity")
 
 # Output the average(variables) group by (activity,subject)
-write.table(tidy.subset, "average_by_subject_activity.txt", row.name=FALSE)
+write.table(output.agg.data, "average_by_subject_activity.txt", row.name=FALSE)
