@@ -34,11 +34,11 @@ The code performs the following main steps:
   .c. merge dataset with the Activity Description
   .d. Tidy up the column names
 
-4. __Create new Average dataset __  
+4. __Create new Average dataset__  
   .a. Calculate the *average(all_variables) group by (activity,subject)*
   .b. Create a new dataset with the previous calculation
   
-5. __Output the dataset[4.] into file *average_by_subject_activity.txt* __  
+5. __Output the dataset[4.] into file *average_by_subject_activity.txt*__  
 
   
 ###Package Dependencies
